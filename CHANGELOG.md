@@ -1,3 +1,9 @@
+## v1.0.0:
+
+* Fork from Opscode.
+* Update chains and default policy to match my security needs.
+* Remove rules that are now tied into the rebuild-iptables script.
+
 ## v0.10.0:
 
 * [COOK-641] - be able to save output on rhel-family
