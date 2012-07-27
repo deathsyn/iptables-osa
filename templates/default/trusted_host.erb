@@ -1,0 +1,5 @@
+# Accept all traffic from the trusted hosts
+<% @trusted_hosts.each do |th| %>
+# <%= th['id'] %>
+-A trusted_hosts -s <%= th['ipv4'] -%>/32 -m comment --comment "<%= th['comment'] -%>" -j ACCEPT
+<% end %>
