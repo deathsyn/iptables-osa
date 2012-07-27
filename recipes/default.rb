@@ -44,6 +44,3 @@ when "ubuntu", "debian"
   end
 end
 
-
-iptables_rule "all_established"
-iptables_rule "all_icmp"
