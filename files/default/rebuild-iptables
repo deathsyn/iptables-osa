@@ -7,6 +7,7 @@ our $ID = q$Id: rebuild-iptables 344 2006-10-04 02:48:30Z digant $;
 # Written by Russ Allbery <rra@stanford.edu>
 # Adapted by Digant C Kasundra <digant@stanford.edu>
 # Adapted by Joe Williams (2011) <joe@joetify.com>
+# Adapted by Kevin Berry (2012) <kevin@opensourcealchemist.com>
 # Copyright 2005, 2006 Board of Trustees, Leland Stanford Jr. University
 #
 # Constructs an iptables rules file from the prefix, standard, and suffix
@@ -35,13 +36,16 @@ our $TEMPLATE = '/etc/iptables.d';
 sub prefix {
   my $data;
   ( $data = <<'END_OF_PREFIX' ) =~ s/^\s+//gm;
-        *filter
-        :INPUT ACCEPT
+    *filter
+    :INPUT DROP
     :FORWARD ACCEPT
     :OUTPUT ACCEPT
-    :FWR -
-    -A INPUT -j FWR
-    -A FWR -i lo -j ACCEPT
+    :local_services -
+    :trusted_hosts -
+    -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+    -A INPUT -j trusted_hosts
+    -A INPUT -j local_services
+    -A trusted_hosts -i lo -j ACCEPT
 END_OF_PREFIX
 
   return $data;
@@ -51,10 +55,11 @@ END_OF_PREFIX
 sub suffix {
   my $data;
   ( $data = <<'END_OF_SUFFIX' ) =~ s/^\s+//gm;
-        # Rejects all remaining connections with port-unreachable errors.
-
-        -A FWR -p tcp -m tcp --tcp-flags SYN,RST,ACK SYN -j REJECT --reject-with icmp-port-unreachable
-        -A FWR -p udp -j REJECT --reject-with icmp-port-unreachable
+        # Limit pings to 30/min, and drop everything else
+        -A INPUT -p icmp -m icmp --icmp-type 8 -m limit --limit 30/min --limit-burst 8 -j ACCEPT 
+        -A INPUT -p icmp -m icmp --icmp-type 8 -j DROP 
+        -A INPUT -m conntrack --ctstate INVALID -j DROP 
+        -A INPUT -p icmp -m icmp --icmp-type 8 -m conntrack --ctstate NEW -j ACCEPT 
         COMMIT
 END_OF_SUFFIX
 

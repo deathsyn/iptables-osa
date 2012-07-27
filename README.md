@@ -1,15 +1,12 @@
 Description
 ===========
 
-Sets up iptables to use a script to maintain firewall rules. However
-this cookbook may be deprecated or heavily modified in favor of the
-general firewall cookbook, see __Roadmap__.
+Sets up iptables to use a script to maintain firewall rules. This cookbook is a fork of the Opscode Cookbook iptables. It has been forked in order to better serve my needs and chain concepts.
 
 Roadmap
 -------
 
-* [COOK-652] - create a firewall cookbook
-* [COOK-688] - create iptables providers for all resources
+* Modify to match my host needs, and be able to dynamically build rules from data bags
 
 Requirements
 ============
@@ -31,8 +28,6 @@ firewall rules from files dropped off in `/etc/iptables.d`.
 
 Definitions
 ===========
-
-See __Roadmap__ for plans to replace the definition with LWRPs.
 
 iptables\_rule
 --------------
@@ -56,7 +51,7 @@ To enable port 80, e.g. in an `httpd` cookbook, create the following
 template:
 
     # Port 80 for http
-    -A FWR -p tcp -m tcp --dport 80 -j ACCEPT
+    -A local_services -p tcp -m tcp --dport 80 -j ACCEPT
 
 This would go in the cookbook,
 `httpd/templates/default/port_http.erb`. Then to use it in
@@ -69,8 +64,10 @@ License and Author
 
 Author:: Adam Jacob <adam@opscode.com>
 Author:: Joshua Timberman <joshua@opscode.com>
+Author:: Kevin Berry <kevin@opensourcealchemist.com>
 
 Copyright:: 2008-2011, Opscode, Inc
+Copyright:: 2012, Kevin Berry
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
